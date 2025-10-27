@@ -1,33 +1,42 @@
 # swift-websocket
 
-SwiftWebSocket is an async/await wrapper around `URLSessionWebSocketTask`. It exposes a modern Swift API,
-such as emitting incoming messages through async streams.
+SwiftWebSocket is an async/await wrapper around `URLSessionWebSocketTask`. It exposes a modern Swift API using modern concurrency (async/await) and async streams.
 
 ## Usage
 
-SwiftWebsocket exposes two types: `WebSocket` and `ReconnectableWebSocket`.
-The main difference is that `WebSocket` can only connect once. After it becomes disconnected, you cannot reconnect it.
+SwiftWebsocket exposes two types: `WebSocket` and `ReconnectableWebSocket`. The main difference is that `WebSocket` can only connect once.
+After it becomes disconnected, you cannot reconnect it.
 
-### ReconnectableWebSocket
+### Initializing
 
 ```swift
-// Initialize a new WebSocket or ReconnectableWebSocket
 let webSocket = WebSocket(url: URL(string: "wss://echo.websocket.org")!)
-let webSocket = ReconnectableWebSocket {
+
+let reconnectableWebSocket = ReconnectableWebSocket {
     // This closure gets called every time the socket will connect,
     // allowing you to provide a new URLRequest used for each connection attempt.
     URLRequest(url: URL(string: "wss://echo.websocket.org")!)
 }
+```
 
-// Connect the socket
+### Connecting and disconnecting
+
+```swift
 try await webSocket.connect()
+try await webSocket.disconnect()
+```
 
-// Send a message
+### Sending
+
+```swift
 try await webSocket.send("Hello world")
 try await webSocket.send(Data())
 try await webSocket.send(encodableModel, encoder: JSONEncoder())
+```
 
-// Receive a message
+### Receiving
+
+```swift
 for try await message in webSocket.messages {
     // As String or Data
     switch message {
@@ -42,7 +51,11 @@ for try await message in webSocket.messages {
     // As a decodable type
     let decodableModel = try message.decode(Foo.self)
 }
+```
 
+### Observing state
+
+```swift
 // Observe state changes
 for await event in webSocket.stateEvents {
     switch event {
@@ -54,9 +67,6 @@ for await event in webSocket.stateEvents {
         print("The WebSocket is disconnected")
     }
 }
-
-// Disconnect the socket
-try await webSocket.disconnect()
 ```
 
 ### Heartbeats

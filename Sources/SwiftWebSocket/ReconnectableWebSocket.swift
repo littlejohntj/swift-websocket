@@ -43,7 +43,7 @@ public actor ReconnectableWebSocket {
     public init(
         urlSession: URLSession = URLSession.shared,
         heartbeats: WebSocket.Heartbeats = .disabled,
-        connector: @escaping () -> URLRequest,
+        connector: @escaping () -> URLRequest
     ) {
         let (messagesStream, messagesContinuation) = AsyncStream.makeStream(of: WebSocket.Message.self)
         self.messages = messagesStream
